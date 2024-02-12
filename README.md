@@ -23,5 +23,4 @@ int main(void)
 }
 ```
 
-
 # [노트](/note)로 이동
