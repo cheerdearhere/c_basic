@@ -13,14 +13,5 @@ ___
 - Ctrl + F5  : 실행(Run)
 
 ___
-# 첫걸음
-```C
-#include <stdio.h>
-int main(void)
-{
-	printf("Hello, world\n");
-	return 0;
-}
-```
 
-# [노트](/note)로 이동
+# [노트](/note/00.md)로 이동
