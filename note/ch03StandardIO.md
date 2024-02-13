@@ -22,7 +22,7 @@
 - 입력된 데이터는 I/O Buffer(Memory)에서 <b>한 글자 단위</b>로 처리
 	- RAM의 일부를 조금씩 분할에서 사용된다. 각 버퍼는 메모리 안에 임시 저장된 재료들.
 
-![ComputerLayer](../img/computerLayer.png "컴퓨터 구조")
+![ComputerLayer](img/computerLayer.png "컴퓨터 구조")
 
 # I. Console
 

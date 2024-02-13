@@ -2,7 +2,7 @@
 # I. Hello World
 ## A. 프로젝트 생성해보기
 ### 1. 프로젝트 생성
-![project](../img/initProject.png)
+![project](img/initProject.png)
 
 ### 2. 프로젝트에 c 파일 생성
 - 단축키: ctrl+shift+a
@@ -70,7 +70,7 @@ int main(void)
 - VS는 여러 프로젝트를 한 솔루션으로 관리할 수 있음
 	- 에디터, 컴파일러, 링커 등 프로그래밍에 편리
 - x64를 주로 함. 32비트인경우 x82사용
-![파일](../img/solutionFiles.png)
+![파일](img/solutionFiles.png)
 - 프로젝트 구성
 	- .exe : 실행파일
 	- .pdb : 실행을 위한 db 파일
