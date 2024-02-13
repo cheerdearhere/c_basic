@@ -5,9 +5,9 @@
 
 [개발환경 구축 및 Hello World](ch01HelloWorld.md)
 
-[C언어 기초문법]
+[C언어 기초문법](ch02CBasic.md)
 
-[표준 입출력]
+[표준 입출력](ch03StandardIO.md)
 
 [연산자]
 
