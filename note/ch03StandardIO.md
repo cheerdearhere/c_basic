@@ -90,10 +90,10 @@ int main(void) {
 		- fgets()  : 리눅스 계열 read(파일 인터페이스 사용)
 	- 출력
 		- puts()   : std Output
-		- 
-			- printf() :
-			- scanf()  :
-			- scanf_s():
+	- 기타 입출력: 이후에 따로 배움
+		- printf() 
+		- scanf()  
+		- scanf_s()
 
 - gets(), puts(): gets는 예제로만 보고 시큐어 코딩에 익숙해지자	
 ```c
@@ -143,8 +143,143 @@ int main(void) {
 	return 0;
 ```
 # V. 형식 문자와 이스케이프 시퀀스
-# VI. 실수 출력
-# VII. 문자, 정수 입력과 개행문자 제거
-# IX. 형식 문자 기반 문자열 입력
+## A. printf/scanf_s
+- printf(params...) : print format. 
+	- 양식에 맞춰서 정보를 조합해 출력
+	- parameter: 매개변수의 수가 여러 
+- scanf()  : scan format
+	- 양식에 맞춰서 정보를 조합해 입력
+- scanf_s(): 보안 이슈로 이걸 사용
+```c
+	int x = 10;
+
+// 문자 상수를 화면에 출력
+	putchar('B');
+// '\n'은 개행 문자이므로 알파벳 문자가 화면에 보이는 것은 아니다
+	putchar('\n');
+	printf("%c\n", 'A');
+// '%d', '%c'는 형식 문자에 맞춰 변수 x에 담긴 정보를 출력한다
+		// printf(format, variable)
+	printf("x는 %d 입니다.", x);
+
+		char text[20];
+	int text_size = sizeof(text);
+//  scanf_s(format, inputData, dataSize);
+	scanf_s("%s", text, text_size);
+	printf("-> %s\n", text);
+
+```
+## B. format character(형식 문자)
+- 입력받을 값의 종류를 표시. 
+- format을 사용하는 함수들에서 순차적으로 매핑해서 처리
+
+|형식문자|자료형|표시|
+|---|---|---|
+|%c|int/char|character|
+|%d|int|integer|
+|%o|int|integer(8진수)|
+|%x, %X|int|integer(16진수)|
+|%f|double|float|
+|%s|char[]|string|
+|%u|Unsigned|unsigned integer|
+|%e, %E|log|log10|
+|%g|double|double|
+|%zd|size_t|check size|
+|%lld|long|long long integer(64비트)|
+|%l64u|||
+
+## C. escape sequence
+- 백슬래시(\) 뒤에 한 문자나 숫자 조합이 오는 문자 조합
+- 일부 외에는 거의 사용안됨. 외울 필요 없이 있다 정도만 기억하고 검색해 사용
+
+|문자|의미|동작|
+|---|---|---|
+|\a|alert|경고음|
+|\n|new line|새로운 줄에서 시작(개행)|
+|\r|carriage return|커서를 행의 앞으로 이동(가끔 사용)|
+|\b|backspace|키보드의 backspace 기능|
+|\f|form feed|커서를 다음 페이지의 시작부분으로 넘김|
+|\t|tab|키보드의 tab 기능|
+|\v|vertical tab|수직으로 tab 기능|
+|\o숫자|8진수|10진수와 구분하기 위해 사용|
+|\x숫자|16진수|10진수, 문자열과 구분하기 위해 사용|
+|\\|\ | \를 문자로 사용|
+|\?|?|?를 문자로 사용|
+|\'|'|'를 문자로 사용|
+|\"|"|"를 문자로 사용|
+
+```c
+	printf("%d\n",1234); 
+	printf("%d, %d\n", 1234, -5678);
+
+	printf("%+d, %+d\n", 1234, -5678); // 부호 표시
+
+	printf("%8d\n", 1234);  // 8칸 공백
+	printf("%08d\n", 1234); // 8칸 공백을 0으로 표시
+```
+
+## D. 실수 출력
+- 데이터가 차지하는 메모리 크기 비교 
+unsigned_int sizeof(data); > data의 자료크기
+	- float : 4 바이트
+	- double: 8바이트
+```c
+//int로 형 변환
+	printf("float size: %d\n", (int)sizeof(123.456F));
+	printf("double size: %d\n", (int)sizeof(123.456));
+```
+float는 자료형의 크기가 작아 소수점 6자리부터 오차가 발생할 수 있음
+```c
+// float 형식을 실수 형식으로 출력
+	printf("F: %f\n", 123.456F); // float
+// double 형식을 실수 형식으로 출력
+	printf("D: %f\n", 123.456); // double
+	printf("LD: %lf\n", 123.456); // long double
+	printf("G: %g\n", 123.456); // long double
+```
+콘솔창
+```dockerfile
+float size: 4
+double size: 8
+F: 123.456001
+D: 123.456000
+LD: 123.456000
+G: 123.456
+```
+소수점 처리하기
+```c
+double dData = 123.456;
+printf("%f, %f\n", dData, -123.456);
+//소수점 2번째 자리에서 반올림해서 1자리까지 출력
+printf("%.1f\n", dData);
+//소수점 3번째 자리에서 반올림해서 2자리까지 출력
+printf("%.2f\n", dData);
+//소수점 4번째 자리에서 반올림해서 3자리까지 출력
+printf("%.3f\n", dData);
+
+printf("%8d\n", 123);
+```
+콘솔창
+```dockerfile
+123.5
+123.46
+123.456
+     123
+```
+여러기능 한번에
+```c
+// 소수점을 포함해 12자리로 출력. 단 소수점 이하 4번째 자리에서 반올림하고 3자리까지 출력한다
+printf("%12.3f\n", dData);
+printf("%012.4f\n", dData);// 길이에 빈 자리를 0으로 표기
+```
+콘솔창
+```dockerfile
+     123.456
+0000123.4560
+```
+# VI. 문자, 정수 입력과 개행문자 제거
+
+# VII. 형식 문자 기반 문자열 입력
+
 [연습 코드](../c_basic/ch09StandardInputOutput)
-# X. 실습문제
+# IX. 실습문제
