@@ -1,7 +1,5 @@
 #include <stdio.h>
-
-int main(void)
-{
+int main(void) {
 	char ch = 0;
 	ch = getchar();
 	putchar(ch);
