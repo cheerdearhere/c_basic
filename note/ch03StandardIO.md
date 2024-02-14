@@ -102,16 +102,46 @@ int main(void) {
 	char szName[32] = { 0 }; // 32칸을 모두 0으로 
 
 	printf("이름을 입력하세요 : ");
-	gets(szName);// gets(char*)
-	// gets()는 보안 결함 문제가 있음 gets_s(char* buffer, size) 권장
+	gets(szName);// gets(char *_Buffer)
+	// gets()는 보안 결함 문제가 있음 gets_s(char *_buffer, size_t_Size) 권장
 
 	printf("당신의 이름은 ");
 	puts(szName); // 출력 후 자동 개행됨
 	printf("입니다.");
 ```
-- char* : character pointer - 문자가 저장된 메모리의 참조 주소
+- char * : character pointer - 문자가 저장된 메모리의 참조 주소
 
-# IV. gets() 함수와 봉안 결함(시큐어 코딩)
+# IV. gets() 함수와 보안 결함(시큐어 코딩)
+## A. gets() 함수의 보안 결함
+- param으로 메모리 주소를 받음 
+	- but 얼마나 써도 되는지 크기 확인이 안됨(가변길이를 받는 문자 배열. 메모리는 고정길이)
+- 메모리의 경계를 벗어난 쓰기를 수행할 수 있음(보안이슈)
+	- overflow: 경계를 벗어난 쓰기 
+		- 이상 현상으로 이어짐 
+		- 심각한 에러상황이 발생
+		- 심지어 원격 쓰기가 일어나 정보 유출이 일어날 수 있음
+		![오버플로우](img/overflow.png)
+- 보안 문제가 발생하지 않도록 코드 수준에서의 대응이 중요(시큐어 코딩 필요)
+	- 행안부 간행물
+		- [시큐어 코딩(C, Java)](https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardArticle.do%3Bjsessionid=fr7QaTyG2gK5o02XJnYETp3havIQ1MGLKMYdWaaEe5me9IOk932SIy2BbP1AM08Z.mopwas54_servlet_engine1?bbsId=BBSMSTR_000000000012&nttId=42152) 
+		- [소프트웨어 개발보안 가이드](https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardArticle.do;jsessionid=TjAX2IwVk6hpONx8dKSZ4VTj.node10?bbsId=BBSMSTR_000000000015&nttId=88956)
+## B. 시큐어 코딩 기초
+- gets_s(char *_buffer, sizeof(대상 문자배열)): 윈도우
+- fgets(char *_buffer): 리눅스
+- 길이를 벗어나면 중단 시킴
+```c
+	char szBuffer[8] = { 0 };
+
+//	gets(szBuffer);// 프로젝트 설정 > 구성 속성 > C/C++ > SDL 체크 false(보안검사x)
+//  gets_s(char*_buffer, rsize_t_Size): 윈도우 기반
+//		sizeof(배열) > 배열의 크기	
+	gets_s(szBuffer,sizeof(szBuffer));
+// fgets(char *_buffer, int *_maxCount, File *_Stream): 리눅스 기반
+	fgets(szBuffer, sizeof(szBuffer), stdin);
+	puts(szBuffer);
+
+	return 0;
+```
 # V. 형식 문자와 이스케이프 시퀀스
 # VI. 실수 출력
 # VII. 문자, 정수 입력과 개행문자 제거
