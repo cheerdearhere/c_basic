@@ -6,5 +6,6 @@ int main(void)
 	ch = getchar();
 	putchar(ch);
 	putchar('Z');
+
 	return 0;
 }
