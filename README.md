@@ -12,5 +12,8 @@ ___
 
 - Ctrl + F5  : 실행(Run)
 ___
+visual studio 2022 community : encoding = x-windows-949
+noy 
+____
 
 # [노트](/note/note.md)로 이동
