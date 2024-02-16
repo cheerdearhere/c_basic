@@ -143,13 +143,11 @@ int main(void) {
 	return 0;
 ```
 # V. 형식 문자와 이스케이프 시퀀스
-## A. printf/scanf_s
+## A. printf
 - printf(params...) : print format. 
 	- 양식에 맞춰서 정보를 조합해 출력
 	- parameter: 매개변수의 수가 여러 
-- scanf()  : scan format
-	- 양식에 맞춰서 정보를 조합해 입력
-- scanf_s(): 보안 이슈로 이걸 사용
+
 ```c
 	int x = 10;
 
@@ -161,13 +159,6 @@ int main(void) {
 // '%d', '%c'는 형식 문자에 맞춰 변수 x에 담긴 정보를 출력한다
 		// printf(format, variable)
 	printf("x는 %d 입니다.", x);
-
-		char text[20];
-	int text_size = sizeof(text);
-//  scanf_s(format, inputData, dataSize);
-	scanf_s("%s", text, text_size);
-	printf("-> %s\n", text);
-
 ```
 ## B. format character(형식 문자)
 - 입력받을 값의 종류를 표시. 
@@ -278,8 +269,125 @@ printf("%012.4f\n", dData);// 길이에 빈 자리를 0으로 표기
 0000123.4560
 ```
 # VI. 문자, 정수 입력과 개행문자 제거
+## A. scanf(scanf_s)
+- scanf()  : scan format
+	- 양식에 맞춰서 정보를 조합해 입력
+- scanf_s(): 보안 이슈로 이걸 사용
+### 1. 왜 scan?
+- 키보드를 눌렀을때 key Input이 일어나고 그 값을 scan code라고 했기때문에 그렇지 않을까(강사 추정)?
+- 하드웨어에서 제조사마다 scan code 값이 다르다보니 규칙을 만듦 -> Virtual key code -> keycode(javascript event listener)
+### 2. scanf로 문자 가져오기
+입력의 끝은 개행문자(\n)
+
+형식 문자	: %c
+buffer		: 
+
+|a|b|c|\n|||| 
+|---|
+> 이 중 처음 들어온(FIFO) 문자 사용 
+
+형식 문자	: %c%*c
+buffer		: 
+
+|a|\n|1|2|3||||
+|---|
+> \* : 버퍼에 입력된 것 중 하나를 비운다
+
+> %c로 처음 입력받은 a를 받고나면 \n이 남는다. 
+이때 버퍼를 읽는 함수가 일을 하면 \n이 읽혀 이미 입력된 것으로 인식된다. 
+이때 '%*형식문자'가 들어있으면 입력을 위한 \n을 저장하지않고 비우게된다.
+여러가지를 입력받는 경우 이것을 꼭 넣어 버퍼를 비워줘야 제대로 작동함.
+
+형식 문자	: %d\n
+buffer		: 
+
+|1|\n||||
+|---|
+> 값을 입력하고 enter를 치면 개행문자가 입력되는 것이 아닌 형식문자에 있는 \n을 읽은 것으로 간주한다. 
+그렇기 때문에 다른 데이터가 입력되어야 read가 완료된다
+```c
+int i = 0;
+scanf_s("%d\n",&i); //enter를 안먹음
+printf("%d\n",i);
+```
+
+scanf_s(format, reffernce, size);
+&variableName : 변수가 저장되어있는 메모리주소 
+### 3. 사용해보기
+- 한 글자 받기
+```c
+	char ch = 0;
+	scanf_s("%c", &ch, 1);
+//	scan_s(문자타입, ch가 저장된 참조주소, 읽을 메모리 수);
+	printf("입력한 문자는 %c입니다.\n", ch);
+```
+
+- 여러 데이터 받기
+	- '%*형식문자'를 사용해 버퍼에 입력된 \n 지우기
+```c
+	char name[32] = { 0 };
+	int nAge = 0;
+
+	printf("나이를 입력하세요 : ");
+	scanf_s("%d%*c", &nAge);
+
+	printf("이름을 입력하세요: ");
+	gets_s(name, sizeof(name));
+
+	printf("나이: %d세, 이름: %s", nAge, name);
+```
+- 두 정수 받기
+	- 한번에 여러 수를 받는 경우 형식 문자 사이에 공백을 넣지 않는다. 
+	- 물론 받을때마다 메세지와 스캔이 이뤄지는게 일반적이라 거의 쓰이지는 않는다. 
+```c
+	int x = 0, y = 0;
+
+	printf("두 정수를 입력하세요");
+	scanf_s("%d%d", &x, &y);
+
+	printf("두 수의 합은 %d 입니다\n", x + y);
+```
 
 # VII. 형식 문자 기반 문자열 입력
+배열은 그 자체가 참조 주소를 갖기때문에 &를 붙이지 않아도 된다. 
+gets는 \n을 끝으로 보지만 scanf는 공백문자를 끝으로 본다. 
+gets는 띄어쓰기가 되지만 scanf는 아님
+- 여러 글자 받기
+	- _countof(variable): 데이터 개수
+	- sizeof(variable): 데이터 크기
+	- 메모리를 추적해서 보면 이해에 도움이 된다. 
+```c
+	char szBuffer[4] = {0};
+	scanf_s("%4c", szBuffer, (unsigned)_countof(szBuffer));
+	printf("%c%c%c%c\n",szBuffer[0], szBuffer[1], szBuffer[2], szBuffer[3]);
+```
+- 그냥 s를 쓰면 문자열을 사용
+```c
+	char szBuffer[50] = {0};
+	scanf_s("%s", szBuffer, (unsigned)_countof(szBuffer));
+	printf("%s\n",szBuffer);
+```
+- sizeof를 사용
+```c
+	char text[20];
+	int text_size = sizeof(text);
+//  scanf_s(format, reference, dataSize);
+	scanf_s("%s", text, text_size);
+	printf("-> %s\n", text);
+```
+
+- 콘솔은 그저 연습용
 
 [연습 코드](../c_basic/ch09StandardInputOutput)
 # IX. 실습문제
+```dockerfile
+사용자로부터 이름과 나이를 키보드로 입력받아 출력하는 프로그램
+이름은 gets_s, 나이는 scanf_s 함수로 입력받고
+printf 함수로 출력
+실행 예시
+	나이를 입력하세요: 20
+	이름을 입력하세요: 철수
+	
+	당신의 나이는 20살이고 이름은 '철수' 입니다.
+```
+[실습 코드](../c_basic/ch09StandardInputOutput/stdioQuestion.c)
