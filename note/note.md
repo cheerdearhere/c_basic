@@ -9,7 +9,7 @@
 
 [표준 입출력](ch03StandardIO.md)
 
-[연산자]
+[연산자](ch04Operator.md)
 
 [기본제어문]
 
