@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="operator_02Question.c">
+    <ClCompile Include="operator_basic.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
