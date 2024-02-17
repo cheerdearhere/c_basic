@@ -23,10 +23,27 @@ int main(void) {
 	hours = minutes / 60;
 	minutes = minutes % 60;
 
-	printf("%d초는 %d시간 %02d분 %02d초 입니다\n", inputSec, hours, minutes, seconds);
+	printf("%d초는 %02d시간 %02d분 %02d초 입니다\n", inputSec, hours, minutes, seconds);
 /* 
 오답노트	
-
+	시간에 0표시 안함: %02d
+팁
+	- 우선 입력과 출력을 체크하고 연산을 생각하면 편하다
+	- 매번 입력하기보다 예시값(4000)을 초기화에서 처리하고 예제를 실행하면 시간을 줄일 수 있다.
+	- 더 간략히: 강사님 코드
+		- 변수는 하나만 쓰도록하면 정리하기 좋음
+			hour = input / 3600;
+			min = (input % 3600) / 60;
+			sec = input % 60;
+		- 굳이 변수가 필요한가 체크
+			printf("%d초는 %02d시간 %02d분 %02d초 입니다\n", 
+				inputSec, 
+				input / 3600, 
+				(input % 3600) / 60, 
+				input % 60
+			);
+		- 단위가 바뀌는 경계 값들이 제대로 처리가 되는지 확인
+			0, 59, 60, 3599, 3600...
 */
 	return 0;
 }
