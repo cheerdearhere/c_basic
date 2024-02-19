@@ -287,11 +287,294 @@ printf("%d\n", data);
 ```
 - 한 식에서 변수의 변경요인이 둘 이상인 것은 결코 좋은 코드가 아님
 	- sequence point 정책 위반 
-# . 비트 연산자와 Endian(엔디안)
-# . sizeof 연산자
-# . 관계 연산자
-# . 논리 연산자
-# . 쇼트 서킷과 범위 검사 흔한 오류 예
-# . 조건(3항) 연산자
-[실습코드](../c_basic/ch10Operator)
-# . 실습문제
+# VI. 비트 연산자와 Endian(엔디안)
+## A. 비트연산자
+- RC회로 수준의 논리회로를 high-level 언어 수준으로 풀이한 것
+![논리 게이트](img/logicGate.png)
+- 진수 변환 필수
+- 자료를 비트단위로 논리식을 수행하는 연산
+- 보통 2진수로 변환해 판단
+- AND(&), OR(|), NOT(~), XOR(^), Shift left(<<), Shift right(>>)
+- NOT은 단항, 나머지는 모두 2항 연산자
+
+## B. 비트 마스크 연산
+- 데이터에서 특정 영역의 값이 모두 0이되도록 지우는 연산
+- AND의 특징을 이용(항등식과 유사): 
+	- 0 AND n -> 0
+	- 1 AND n -> n
+
+```c
+	int nData = 0x11223344;
+
+	printf("%d\n", nData);
+
+	printf("%08X\n", nData & 0x00FFFF00); // AND
+	printf("%08X\n", nData | 0x00FFFF00); // OR
+	printf("%08X\n", nData ^ 0x00FFFF00); // XOR
+	printf("%08X\n", ~nData); // NOT
+
+	printf("%08X\n", nData >> 8); // Shift right
+	printf("%08X\n", nData << 8); // Shift left
+```
+> console
+287454020
+00223300
+11FFFF44
+11DDCC44
+EEDDCCBB
+00112233
+22334400
+
+8진수 > 2진수 변환 > 연산 
+- 2항연산
+	- Ox3344 AND 0xFF00
+
+|8421|8421|8421|8421|
+|---|
+|0011|0011|0100|0100|
+|And|
+|1111|1111|0000|0000|
+|binary result|
+|0011|0011|0000|0000|
+
+octal result = 3300
+
+- 단항연산(NOT)
+	- ~0x1234
+
+|8421|8421|8421|8421|
+|---|
+|0001|0010|0011|0100|
+|not|
+|1110|1101|1100|1011|
+|demical|
+|14|13|12|11|
+
+res = EDCB
+
+- Shift 연산
+	- Ox11223344 >> 8
+	
+|Ox11223344 >> 8 |
+|---|
+|0x00112233|
+
+- shift 방향으로 zero padding이 이뤄짐. 
+
+## C. 엔디안(Endian)
+- 분명.. 0x12345678로 입력했는데 메모리에는 역으로 저장됨
+
+![메모리](img/endian_memory.png)
+
+- 메모리는 1byte 크기의 주소값으로 데이터를 관리
+- int는 32bit 크기로 0잘라서 사용
+
+|3|4|5|6|
+|---|
+|78|56|34|12|
+
+- 사람은 작은 쪽에서 큰쪽으로 이동하는 것을 자연스럽게 보지만 그렇지 않을 수 있다
+
+|&|data|
+|---|
+|3|78|
+|4|56|
+|5|34|
+|6|12|
+
+- 메모리의 데이터를 읽는 방식을 <b style="color:blue">Endian</b>이라 한다 
+	- 메모리 주소를 큰 것에서 작은 번호로 읽는 것을 Little Edian
+	- 메모리 주소를 작은 것에서 큰 번호로 읽는 것을 Big Edian
+- 에디안은 CPU 프로세서 수준에서 관리
+	- 인텔의 default 정책은 Little Edian
+- 이건....어쩔 수가 없다
+
+## D. 필수 실습 문제
+```docker
+사용자로부터 두 정수를 입력받아 뺄셈을 수행하고 그 결과를 출력하는 프로그램
+단, 절대로 산술연산자 -를 사용하지 않고 비트 연산자를 이용해 구현
+
+tip: 1의 보수 + 1 -> 2의 보수(차)
+```
+[실습](../c_basic/ch10Operator/operator_05Question.c)
+
+- tip 홀짝 
+	- 홀짝을 체크할때 나머지 연산자를 쓰는 방법과 비트연산자를 쓰는 방법이 있다. 
+	- 둘 다 큰 문제는 아니지만 조금이라도 효율을 체크 할때는 bitwise 연산이 좀 더 좋다.
+```c
+	//bitwise operator
+	nData & 0x00000001;
+	//modulus operator
+	nData % 1;
+```
+# VII. sizeof 연산자
+- 메모리에 직접 접근하기때문에 데이터의 크기를 아는 것이 중요
+- sizeof(var): 피연산자의 자료형에 대해 수행하는 <b style="color:blue">컴파일 타입 연산자</b>
+- 컴파일 타임 연산자는 <b style="color:blue">런 타임 에러를 방지</b>할 수 있으므로 유용하다 
+- 컴파일 타임 연산자는 <b style="color:blue">런타임때 수행되지 않기</b>때문에 메모리를 소비하지 않는다
+- sizeof(5)와 sizeof(int)는 결과가 같음
+- 배열에 대해서도 적용 가능
+- 언어 수준에서 피연산자의 메모리 크기를 체크해 안정성을 확보할 수 있으므로 <b style="color:blue">최대한 자주 사용</b>할 것
+```c
+	int intVar = 5;
+	int ointVar = 0x1234567;
+	char charVar = 'A';
+	float floatVar = 123.45F;
+	double doubleVar = 123.45;
+
+	printf("%d: %d, 0x%08x: %d, int: %d\n",intVar,sizeof(intVar),ointVar, sizeof(ointVar), sizeof(int));
+	printf("%c: %d, char: %d\n",charVar,sizeof(charVar),sizeof(char));
+	printf("%fF: %d, %f: %d\n",floatVar,sizeof(floatVar),doubleVar,sizeof(doubleVar));
+
+	printf("+10: %d, ++: %d\n", sizeof(ointVar + 10),sizeof(++ointVar));
+	printf("%d\n",sizeof(ointVar));
+
+	int aList[16];
+	printf("%d\n", sizeof(aList));
+	printf("%d\n", _countof(aList));
+
+	printf("%lld\n", sizeof(aList));
+	printf("%lld\n", _countof(aList));
+```
+> console
+5: 4, 0x01234567: 4, int: 4
+A: 1, char: 1
+123.449997: 4, 123.450000: 8
++10: 4, ++: 4
+4
+32
+64
+2269542323585088
+2269542323585040
+- 자료형의 크기(메모리에서 확보한 크기) 내에서 값의 변화는 의미없음
+
+# IX. 관계연산자
+- <, >, <=, >=
+- 두 피연산자의 값을 비교(뺄셈)해 결과 도출
+	- java의 comparator와 유사
+- 상등, 부등, 관계 연산자로 분류
+- 상등(==), 부등(!=) 연산은 좌항에서 우항을 뺀 결과를 비교하는 관계연산
+- <b style="color:red">실수형에 대해 상등, 부등 연산은 불가</b>
+	- 비교는 어떻게 하더라도 상등 부등은 해서는 안된다
+	- 실수는 부동소수점을 사용하기때문에 오차가 존재하고 이로인한 심각한 보안 이슈를 발생시킬 수 있다.
+```c
+	int x = 5, y = 10;
+	printf("x == y : %d\n", x == y);
+	printf("x != y : %d\n", x != y);
+	printf("x > 5  : %d\n", x > 5);
+	printf("y < 5  : %d\n", y < 5);
+	printf("y >= 10  : %d\n", y >= 10);
+
+	printf("y <= x + 5 : %d\n", y <= x + 5);
+```
+>console
+x == y : 0
+x != y : 1
+x > 5  : 0
+y < 5  : 0
+y >= 10  : 1
+y <= x + 5 : 1
+- 각 변 연산 > 비교
+```c
+printf("299.99999F: %d\n", 300 == 299.99999F);
+printf("299.99999: %d\n", 300 == 299.99999);
+printf("299.9999F: %d\n", 300 == 299.9999F);
+printf("300.00001F: %d\n", 300 == 300.00001F);
+```
+>console
+299.99999F: 1
+299.99999: 0
+299.9999F: 0
+300.00001F: 1
+
+# X. 논리 연산자
+## A. 논리연산자 기본
+- AND(&&), OR(||), NOT(!): 비트연산자와 유사하므로 주의 
+	- AND: (   ) && (   )
+	- OR: (   ) || (   )
+	- NOT: !(   )
+- 항 혹은 연산식을 피연산자로 두는 논리합(OR), 논리곱(AND) 2항 연산자
+	- 여러 조건을 동시에 처리
+- 논리 부정 연산자(NOT)는 단항 연산자
+- 값의 범위 표현시 사용되는 것이 보통 
+- 0은 거짓이고 0이 아닌 모든 값은 참
+	- 음수도 true
+```c
+	scanf_s("%d", &nInput);
+	bResult = nInput < 4 || nInput >= 60;
+```
+
+## B. 쇼트 서킷(Short circuit) 
+- Short circuit은 효율을 높이기위한 것. 다른 프로그래밍 언어에서도 적용됨
+- 굳이 하지 않아도 되는(결과가 이미 정해진) 연산식을 패스
+- 결합성이 L -> R이므로 왼쪽의 연산식을 우선 평가하고 이어지는 연산식을 수행할 것인지 판단
+	- OR 연산에서 L이 true면 R연산식을 평가할 필요가 없음
+	- AND 연산에서 L이 false면 R연산식을 평가할 필요가 없음
+	- A && B || C || D && E && F 
+		- 왼쪽부터 연산자를 기준으로 항 3개를 묶음
+		- 연산 후 위의 조건이되면 그 이후 연산은 전혀 안함을 기억
+			- A && B || C가 true면 D부터는 굳이 연산 x
+			- A && B || C || D가 false면 E부터는 굳이 연산하지 않음
+- 처리 효율을 위해 가능한 간단한 연산을 좌측에 배치한다
+
+## C. 범위 검사 흔한 오류 예
+- 너무 익숙하게 쓰는 방식이지만...
+```c
+	bResult = 3 < nInput < 20;
+```
+- boolean이 따로 없고 0과 1로 사용되기 때문에 컴파일처리는 되지만 원하는 결과는 나오지 않음. 
+```c
+	bResult = nInput > 3 && nInput < 20;
+```
+
+## D. 조건(3항) 연산자
+- C언어 유일의 피연산자를 3개로 받는 연산자
+- 조건식 ? 항A : 항B
+- 논리적 오류를 피하려면 선택 대상 항(항A, 항B)은 괄호로 묶어 표기. 항이 값이 아닌 식인 경우 더 더욱
+```c
+	nSelect = nInput <= 10 ? 10 : 20;
+```
+- 조건을 따져 분기를 선택할 수 있음. 
+- 프로그래밍의 진짜 시작인 제어문
+
+## E.필수 실습
+```dockerfile
+사용자로부터 점수(0~100)를 입력받아 
+80점 이상이면 '합격' 그렇지 않으면 '불합격'이라고 출력하는 프로그램을 작성.
+반드시 3항 연산자를 사용
+출력 예시
+	점수를 입력하세요 : 80
+	결과: 합격
+```
+[실습코드](../c_basic/ch10Operator/operator_06Question.c)
+
+
+[연산자 전체 코드](../c_basic/ch10Operator)
+
+# XI. 실습문제
+```dockerfile
+문제1 : 최댓값 서바이벌 
+사용자로부터 입력 받은 정수 중 가장 큰 수를 출력하는 프로그램을 작성
+제한사항
+	정수는 부호가 있는 32비트 정수로 한정 
+	scanf_s() 함수로 한번에 한 값만 입력
+	내부적으로 초댓값을 계속 갱신하는 구조
+출력 예시
+	10
+	20
+	30
+	MAX : 30
+```
+[실습코드](../c_basic/ch10Operator/operator_07Question.c)
+```dockerfile
+문제2: 최대값 토너먼트
+사용자로부터 입력받은 정수 중 가장 큰 수를 출력하는 프로그램을 작성
+제한사항 
+	정수는 부호가 있는 32비트 정수로 한정
+	scanf_s 함수는 한 번만 사용
+	최대값은 printf() 함수로 출력
+출력 예시
+	10 20 30
+	MAX : 30
+```
+[실습코드](../c_basic/ch10Operator/operator_08Question.c)
