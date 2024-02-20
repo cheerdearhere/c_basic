@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 int main(void) {
 	printf("조건식 연습 시작\n");
 
