@@ -17,7 +17,7 @@
 
 [함수에 대한 기본 이론](ch07Function.md)
 
-[메모리와 포인터]
+[메모리와 포인터](ch14Pointer&Memory.md)
 
 [함수 응용]
 
