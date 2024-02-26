@@ -214,7 +214,8 @@ int main(void);//여기까지
 		}
 		```
 		- 다른 파일에 함수를 넣은 경우(분할 컴파일): 아래에서
-		```c			#include <stdio.h>// header파일도 하나의 분할 컴파일
+		```c
+			#include <stdio.h>// header파일도 하나의 분할 컴파일
 			int Add(int, int); //시그니처 선언
 			int main(void){
 				printf("%d\n",Add(3,4));
