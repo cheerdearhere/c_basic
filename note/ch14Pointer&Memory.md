@@ -50,10 +50,17 @@
 - free() : 메모리 할당 해제 함수
 - realloc()
 - memset()
-- memcpy()
-- memcmp()
+- calloc()
+- memcpy() : copy
+- memcmp() : compare
 - memchr()
 
+- 함수 소속
+
+|#include|함수|
+|---|
+|<stdlib.h> | malloc()<br/>_countof()|
+|<string.h> | memset()<br/>memcpy()<br/>memcmp()|
 ## E. 메모리 디버깅!!
 - 이론을 이해하고 메모리 디버깅을 통해 파악하는 것이 중요
 
@@ -222,6 +229,146 @@ free(pList);// 메모리 반환
 ```
 
 # V. 메모리 초기화, 복사, 비교
+- 단순 변수를 사용할때와 달리 포인터를 사용하는 데이터들(배열 등)은 새로운 고민을 시작하게한다.
+## A. 초기화
+### 1. 메모리 사용 위치 비교
+- 지역변수이자 자동변수(stack memory), char[6] 배열로 처리
+```c
+char szBuffer[] = { "Hello" };
+```
+- 포인터 변수: 정적(static area) 문자열 상수
+	- in java: public static final char[] 
+```c
+char* pszBuffer = "Hello";
+```
+- 메모리 동적 할당/ 메모리 공간 최대 char[6]
+	- heap memory
+	- 시작은 null(\0)
+```c
+char* pszData = NULL;
+pszData = (char*)malloc(sizeof(char) * 6);
+pszData[0] = 'H';
+pszData[1] = 'e';
+pszData[2] = 'l';
+pszData[3] = 'l';
+pszData[4] = 'o';
+pszData[5] = '\0';
+```
+- 셋 모두 메모리 주소(논리적 분류)가 다름
+```c
+puts(szBuffer);
+puts(pszBuffer);
+puts(pszData);
+```
+- 메모리 동적할당 해제
+```c
+free(pszData);
+```
+- 초기화와 관련된 여러 메서드
+	- malloc(): 메모리 크기 OS에 요청
+		(int*)malloc(sizeof(int) * 3);
+	- memset(): 대상에 데이터를 크기만큼 초기화
+		memset(pList, 0, sizeof(int) * 3);
+	- calloc(): 메모리를 요청하면서 데이터를 크기만큼 초기화
+		- malloc() + memset()
+		(int*)calloc(3, sizeof(int));
+```c
+//pointer
+int* pList = NULL, * pNewList = NULL;
+//array
+int aList[3] = { 0 }; // 12 bytes 이중 식별자는 index 0를 가리킴 
+
+//메모리 초기화의 가장 일반적인 예
+pList = (int*)malloc(sizeof(int) * 3); // 64bit짜리 메모리주소
+memset(pList, 0, sizeof(int) * 3);  // 64bit짜리 메모리주소
+
+//malloc + memset -> calloc: 동적할당 후 쓰레기 값을 0으로 초기화시킴
+pNewList = (int*)calloc(3, sizeof(int));
+
+for (int i = 0; i < 3; ++i)
+	printf("pList[%d]의 값: %d\t", i, pList[i]);
+putchar('\n');
+for(int i = 0; i < 3; ++i )
+	printf("pNewList[%d]의 값: %d\t", i, pNewList[i]);
+putchar('\n');
+
+free(pList);
+free(pNewList);
+```
+- 동적할당을 했을때 쓰레기값을 무조건 0으로 초기화해야하는가?
+	- no
+	- 다만 동적할당으로 문자열을 사용할때는 가능한 초기화
+## B. <b style="color:red">복사</b>(매우 중요)
+- 단순 대입연산자의 두 피연산자가 모두 변수라면 메모리 값을 복사하는 것으로 생각할 수 있음
+```c
+// 변수의 복사는 당연
+	aVar = bVar;
+// l-value (대입) r-value;
+```
+- 하지만 변수의 좌측은 상수(메모리 주소값)
+- 사고가 많이 발생...
+```c
+char szBuffer[12] = { "HelloWorld" };
+char szNewBuffer[12] = { 0 };
+
+szNewBuffer = szBuffer; 
+```
+![배열 단순 복사](img/pointer_cannot.png)
+- copy의 종류
+	- Deep copy : 내부 데이터까지 복사
+	- Shallow copy : 포인터만 복사
+- 배열에 대해서는 단순 대입 연산으로 배열 전체를 복사할 수 없으며 반복문을 통해 개별 요소를 하나씩 복사(단순 대입)해야한다.
+- memcpy()를 사용하자
+```c
+	//		붙여 넣을,	가져올,	크기
+	memcpy(szNewBuffer, szBuffer, 4);
+```
+- memcpy의 내부는 이렇게 루프를 돌며 단순 대입
+```c
+char szBuffer[12] = { "HelloWorld" };
+char* pszData = NULL;
+pszData = (char*)malloc(sizeof(char) * 12);
+for(int i = 0; i < 12; ++i)
+	pszData[i] = szBuffer[i];
+puts(pszData);
+```
+
+## C. 비교
+- 비교는 뺄셈!
+- java도 단순히 비교하지 않고 _string.equals(_string_other)
+```c
+	char szBuffer[12] = { "TestString" };
+	char* pszData = "TestString";
+
+	printf("%d\n", memcmp(szBuffer, pszData, 10));
+	printf("%d\n", memcmp("teststring", pszData, 10));
+	printf("%d\n", memcmp("DataString", pszData, 10));
+```
+>console
+0
+1
+-1
+
+## D. 실습 문제
+```dockerfile
+아래 코드의 결함에 대해 말하고 바르게 수정하시오
+#include <stdio.h>
+#include <stdlib.h>
+int main(void) {
+	char szBuffer[12] = { "HelloWorld" };
+	char* pszData = NULL;
+	pszData = (char*)malloc(sizeof(char) * 12);
+	pszData = szBuffer;
+	puts(pszData);
+
+	return 0;
+}
+```
+[실습 예제](../c_basic/ch14Pointer/pointer_01Question.c)
+- compile time에서는 에러가 발견되지 않기때문에 주의가 필요하다
+- 문자열 전용 복사 함수가 있다
+  - strcpy() > 보안 이슈 > strcpy_s() 사용 권장
+
 # VI. 배열 연산자 풀어쓰기
 # VII. 문자열 복사, 비교, 검색
 # IX. 동적 할당된 메모리 구조와 realloc()
