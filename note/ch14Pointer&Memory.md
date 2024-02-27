@@ -370,18 +370,344 @@ int main(void) {
   - strcpy() > 보안 이슈 > strcpy_s() 사용 권장
 
 # VI. 배열 연산자 풀어쓰기
-# VII. 문자열 복사, 비교, 검색
+- 1차원 배열 연산자와 1차 싱글 포인터는 거의 기능이 일치
+- 인덱스를 이용해 상대 위치를 계산
+- *(기준 주소 + 인덱스) == 기준주소[인덱스]
+	- &식별자 : 
+	- *(주소) : 간접지정
+```c
+//예시 문자열
+	char szBuffer[32] = { "You are a girl." };
+```
+- 모두 같은 대상을 지칭
+```c
+	//배열연산자
+	printf("szBuffer[0]: %c\n", szBuffer[0]);
+	//배열연산자를 풀어쓴 것 
+	printf("*(szBuffer + 0): %c\n", *(szBuffer + 0));
+	//index 0는 포인터가 지칭하는 것과 같음
+	printf("*szBuffer: %c\n", *szBuffer);
+```
+- 인덱스 수와 같음
+```c
+	printf("szBuffer[5]: %c\n", szBuffer[5]);
+	printf("*(szBuffer + 5): %c\n", *(szBuffer + 5));
+```
+- *szBuffer + 5 -> 'Y' + 5(메모리상 이동이 아닌 ASCII 문자 이동) > 오류
+- 주소연산자(&)와 간접지정(*)은 정반대의 처리
+	- arrayName[4] == *(arrayName + 4)
+	```c
+		printf("&szBuffer[4]: %s\n", &szBuffer[4]);
+	```
+	- &*가 함께 사용되면 항등식처럼 식별자가 그대로 나온다(상충)
+	```c
+		printf("&*(szBuffer + 4): %s\n", &*(szBuffer + 4));
+	```
+	- 문자열로 해석하면(%s) 문자열 중 null(\0)를 찾을때까지 이어진다
+	- 만약 null이 발견되지 않으면 무한로딩
+	```c
+		printf("szBuffer + 4(str): %s\n", szBuffer + 4); // 주소
+
+	```
+	- 포인터로 해석하면(%p) 메모리 주소를 반환한다
+	```c
+		printf("szBuffer + 4(pointer): %p\n", szBuffer + 4);
+	```
+>console
+szBuffer[0]: Y
+*szBuffer: Y
+*(szBuffer + 0): Y
+szBuffer[5]: r
+*(szBuffer + 5): r
+*szBuffer + 5: ^
+&szBuffer[4]: are a girl.
+&*(szBuffer + 4): are a girl.
+szBuffer + 4(str): are a girl.
+szBuffer + 4(pointer): 00000020783BF80C
+
+# VII. 문자열 복사, 비교, 검색(동적할당)
+- 문자열이란 문자의 배열이다
+- 배열은 당연히 포인터를 쓰게된다
+## A. 문자열 복사
+```c
+	char szBuffer[] = "Hello";
+	// szBuffer의 주소(16진수 64비트로 표시한 index 0의 위치)
+	char* pszBuffer = szBuffer; 
+	
+	//메모리 동적 할당
+	char* pszHeap = malloc(16);//16칸이 확보된 배열의 index 0의 메모리 주소
+	strcpy_s(pszHeap, 16, pszBuffer);//deep copy: 메모리 주소가 아닌 원래 대상의 값 Hello를 복사
+	//pszHeap = pszBuffer; 값이 넘어오는 것이 아닌 그저 메모리 주소를 가리킴
+
+	puts(pszHeap);
+	free(pszHeap);
+```
+## B. 문자열 비교
+- 비교는 대상 - 비교대상
+- memcmp와의 차이점
+	- memcmp는 메모리의 사이즈를 매개변수로 받음
+	-  strcmp는 문자열 길이를 따로 입력하지 않음
+```c
+	char szBuffer[12] = { "TestString" }; //stack memory
+	char* pszData = "TestString";//static memory
+
+	printf("%d\n", strcmp(szBuffer, pszData));
+	printf("%d\n", strcmp("TestString", pszData));
+	printf("%d\n", strcmp("Test", "TestString"));
+```
+>console
+0
+0
+0
+-1
+- return 0 : 같다
+```c
+if(strcmp("Test", "TestString") == 0){
+	// 같을때 구동할 구문
+}
+```
+- 검색: 메모리주소 strstr(검색대상배열,검색어) 
+	- 검색 결과가 없으면 00000000
+```c
+	char strBuffer[32] = { "I am a boy" };
+```
+|I| |a|m| |a| |b|o|y|\0|
+|---|
+```c
+	printf("%p\n",strBuffer);//I가 보관된 메모리 주소
+	printf("am: %p\n", strstr(strBuffer, "am"));//검색어 제일 앞인 a가 보관된 메모리 주소
+	printf("boy: %p\n", strstr(strBuffer, "boy"));
+	printf("zzz: %p\n", strstr(strBuffer, "zzz"));
+	
+	printf("index(am): %d\n", strstr(strBuffer, "am") - strBuffer);
+	printf("index(boy): %d\n", strstr(strBuffer, "boy") - strBuffer);
+```
+>console
+004EFA5C
+am: 004EFA5E
+boy: 004EFA63
+zzz: 00000000
+index(am): 2
+index(boy): 7
 # IX. 동적 할당된 메모리 구조와 realloc()
+- 메모리를 관리하는 주체는 OS
+	- 관리 단위(Allocation): 64KB
+	- malloc() 단위: 4KB
+	- free()를 사용해 해제하더라도 나눈 chunk는 유지됨
+	- 조각 사이에서 사용할 수 없는 영역이 있으면 낭비됨
+- 운영체제가 제공하는 단위(Chunk)를 그대로: malloc()
+	- malloc과 free가 계속 이어지면 메모리 조각들이 남고 그것을 찾고 사용하는 과정에서 연산 시간을 더 소모하기도한다.  
+- 메모리 할당 크기를 직접 조정: realloc()
+## A. realloc()
+- 기존에 할당받은 메모리의 크기를 조정해 다시 할당(주로 확장)
+	- 받은 청크에 여유가 있으면 무리없이 확장 가능
+- 메모리 청크 크기 조절에 실패할 경우 전혀 새로운 위치로 이동
+```c
+	char* pszBuffer = NULL, pszNewBuffer = NULL;
+```
+- 12바이트 요청
+```c
+	char* pszBuffer = NULL, * pszNewBuffer = NULL;
+	
+	pszBuffer = (char*)malloc(12);// 12바이트 요청
+	sprintf_s(pszBuffer, 12, "%s", "TestString"); 
+
+	printf("[%p] %zd %s\n", 
+		pszBuffer, 
+		_msize(pszBuffer), 
+		pszBuffer
+	);
+```
+- 32바이트 요청
+	- 확장이 가능하면 메모리 주소 변경 x
+	- 확장이 불가하면 메모리 이관 > 주소 변경
+```c
+	pszNewBuffer = (char*)realloc(pszBuffer, 32); 
+	//32바이트로 확장 요청
+	
+	sprintf_s(pszNewBuffer, 32, "%s", "TestStringData");
+	printf("[%p] %zd %s\n",
+		pszNewBuffer,
+		_msize(pszNewBuffer),
+		pszNewBuffer
+	);
+
+	free(pszNewBuffer);
+```
+>console
+[01659FB0] 12 TestString
+[01659FB0] 32 TestStringData
+
+- 게임 서버처럼 OS 관리를 직접 구현하는 경우가 아닌이상 realloc을 쓰는 경우가 거의 없다
+
 # X. 다중포인터(개념만)
-- 싱글 포인터가 익숙해진 뒤에 볼 것
+- 싱글 포인터가 익숙해진 뒤에 자세히 볼 것
+- 포인터에 대한 포인터(간접 지정)
+	- char*에 대해 *(char*) == char(자료형)
+	- char**에 대해 *(char**) == char*
+	- char\**\*에 대해 *(char***) == char**
+	
+![이중포인터](img/pointerToPointer.png)
+
+```c
+	char ch = 'A'; // 원본
+	char* pData = &ch; // pointer
+	char** ppData = &pData; // pointer to pointer
+	char*** pppData = &ppData; // pointer to pointer to pointer
+
+	printf("origin: %c[%p]\n", ch, &ch);
+	printf("*: %c[%p]\n", *pData, &pData);
+	printf("**: %c[%p]\n", **ppData, &ppData);
+	printf("***: %c[%p]\n", ***pppData, &pppData);
+```
+>console
+origin: A[0055FC6B]
+*: A[0055FC5C]
+**: A[0055FC50]
+***: A[0055FC44]
+
+- 2중 포인터도 쓴 적이 옛날이고 3중은 거의..
+- 알면 좋지만 싱글 포인터에 대한 이해가 제대로 안됐을때는 굳이 볼필요 없음
+
+- 다만 데이터 자체가 배열인 문자열에서는 이런식으로 사용함
+```c
+	// 문자열이 저장된 주소(포인터)들의 배열
+	char* astrList[3] = { "Hello","World","String" };
+```
+- 포인터들의 배열정도는 써보자
+```c
+	printf("astrList[i]\n);
+	printf("%s\n", astrList[0]);
+	printf("%s\n", astrList[1]);
+	printf("%s\n", astrList[2]);
+
+	printf("astrList[i]+1\n);
+	printf("%s\n", astrList[0] + 1);
+	printf("%s\n", astrList[1] + 2);
+	printf("%s\n", astrList[2] + 3);
+
+	printf("astrList[i][j]\n");
+	printf("%c\n", astrList[0][3]);
+	printf("%c\n", astrList[1][3]);
+	printf("%c\n", astrList[2][3]);
+```
+>console
+astrList[i]
+Hello
+World
+String
+astrList[i]+1
+ello
+rld
+ing
+astrList[i][j]
+l
+l
+i
 # XI. 다차원 배열에 대한 포인터
-# XII. 정적 메모리와 기억불류 지정자 
+- 2차원까지만 이해... 
+- 2차원 배열은 1차원 배열을 요소로 갖는 1차원 배열로 이해
+- char aStrList[2][12] > char[12]를 요소로 갖는 배열
+- char (*pStrList)[12] > 요소가 char[12]인 배열에 대한 포인터
+	- char[12]*로 쓰고싶겠지만 안됨 
+	- char*pStrList[12]는 그냥 12개짜리 배열선언(2차원배열에 대한 포인터가 아님)
+```c
+	char aStrList[2][12] = { "Hello","World" };
+	//char** pStrList = aStrList;
+	char(*pStrList)[12] = aStrList;
 
+	puts(pStrList[0]);//배열을 포인터로 풀어서 사용한다
+	puts(pStrList[1]);
+```
+>console
+Hello
+World
+- 이동의 단위가 달라짐에 주의
+```c
+	puts(pStrList[0] + 1);
+	puts(pStrList + 1);
+```
+>console
+ello
+World
+# XII. 정적 메모리와 기억부류 지정자 
 
-
-
-
-[실습 예제](../c_basic/ch14Pointer/.c)
-
+## A. 기억부류(메모리) 지정자(Storage-class specifier)
+- 키워드
+	- extern: 외부
+	- auto: 직접적으로는 거의 안씀. 그냥 지역변수.
+		- 워낙 안쓰니 C++에서는 의미가 바뀜 
+	- static: 동적할당하지 않는 모든 메모리... 직접 쓰지는 않음 
+	- register: CPU를 직접 다루는... 이걸 굳이 직접 사용하지 않는다. 
+		- 모든 레지스터는 하드웨어 수준에서 이미 지정되어있다.
+			- EIP: 소스 코드를 기계어로 변환시키는 코드들이 모여있음.
+		- RAM이 아니기에 주소 연산자(&)를 사용할 수 없다
+- 자동변수는 stack memory(thread)를 사용. 
+	- push, pop: Last In First Out
+	- multi thread는 자원의 동기화에서 문제가 생김
+- 일반적인 지역변수는 모두 자동변수
+- 정적 메모리는 프로그램 시작시 확보되는 영역
+	- 프로그램 종료시(main())까지 유지(동시성 이슈 주의) 
+	- 동시성: 동시에 진행할 수 없는 일이 있는 경우 문제가 발생
+		- multi thread 환경에서 문제가 많이 발생(테스트는 단일 스레드지만 상용 서버로 넘어갔을때 문제가 발생할 수 있음) 
+## B. 메모리 종류(위에서 봄)
+- Stack: 자동변수, 보통 1MB
+	```c
+		char szBuffer[1024 * 1024] = { 0 }; 
+	```
+	- 그 크기를 벗어나면 stack overflow 발생
+	- 스택 메모리의 사이즈를 늘리려면 alt+f7(프로젝트 속성)를 누르고 
+	- 시스템의 'Link > 스택 예약크기'에서 크기를 지정
+	![가용stack메모리 예약](img/handleStackMemory.png)
+	- 꼭 필요하다면 사용...
+		- 자료구조가 매우 복잡한 경우
+		- 재귀호출을 하는 경우
+- main()처럼 흐름의 시작이되는 함수의 생명주기
+- 다른 종류의 메모리에서 호출하면 스택 프레임이 쌓이고(call stack)
+- 활동이 종료되면 스택 프레임이 제거되면서 스택 메모리의 데이터도 자동으로 제거
+- 필요한 데이터가 자동으로 할당 해제됨
+- 지역변수를 사용할때 메모리 계산이 필수
+- Heap: 동적할당 메모리
+	- 64bit(OS reference를 따름)
+	- 32bit는 1.7GB를 넘으면 malloc 실패
+- 실행코드
+	- text section: 실행코드 기계어
+	- data section: 
+		- Read only: 문자열 상수(string)
+		- Read/Write: 정적 메모리(전역변수)
+## C. 정적변수 
+- 같은 지역변수
+```c
+int TestFunc(void) {
+	static int nStaticData = 10;// local, static
+	int nLocalData = 10;// local
+	++nLocalData;
+	++nStaticData;
+	printf("\tlocal: %d/ static local:  %d\n", nLocalData, nStaticData);
+	return nLocalData;
+}
+```
+- 호출했을때 scope의 스택 프리임과 함께 초기화되는 자동 변수와 달리 정적변수는 값이 초기화되지 않음
+```c
+int TestFunc(void); 
+int main(void) {
+	TestFunc();
+	TestFunc();
+	TestFunc();
+	TestFunc();
+	return 0;
+}
+```
+>console
+        local: 11/ static local:  11
+        local: 11/ static local:  12
+        local: 11/ static local:  13
+        local: 11/ static local:  14
+- 정적 메모리는 실행코드와 비슷한 위치에 있다
+	- static variable의 메모리 주소와 어셈블리의 실행코드의 주소가 유사함
+	- 정적 변수를 쓰면 동시성 이슈로 원하지 않는 데이터 변질이 생길 수 있음을 기억
+- 멀티쓰레딩을 안쓰는 경우가 없다
+	- 전역 변수와 마찬가지로 가능한 쓰지않는 것을 권장
+	- 써야 한다면 정말 신중하게 고민해야한다
 
 [메모리와 포인터 전체 코드](../c_basic/ch14Pointer)
