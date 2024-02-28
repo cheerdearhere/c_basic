@@ -128,7 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="advancedFunction_basic.c" />
-    <ClCompile Include="basic_farmatter.c" />
+    <ClCompile Include="basic_formatter.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basicform.h" />
