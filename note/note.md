@@ -19,7 +19,7 @@
 
 [메모리와 포인터](ch14Pointer&Memory.md)
 
-[함수 응용]
+[함수 응용](ch15AdvancedFunction.md)
 
 [구조체와 공용체]
 
