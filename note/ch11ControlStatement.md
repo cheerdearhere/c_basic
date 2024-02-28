@@ -385,7 +385,8 @@ while(1){
 }
 puts("END");
 ```
->console
+>console)
+```dockerfile
 a
 a
 b
@@ -394,6 +395,7 @@ c
 c
 x
 END
+```
 
 ## B. continue
 - 수행시 스코프의 해당 회차를 즉시 벗어나 그 다음 회차로 이동
@@ -411,7 +413,8 @@ while (1) {
 }
 puts("END");
 ```
->console
+>console)
+```dockerfile
 a
 a
 b
@@ -424,6 +427,7 @@ x
 (아무것도 안하고 입력대기)
 x
 (아무것도 안하고 입력대기)
+```
 
 ## C. 중첩 반복문
 - 반복문이 중첩됐을 경우 break/continue가 속한 반복문이 멈춤

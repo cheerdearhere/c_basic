@@ -88,12 +88,15 @@ int main(int argc, char* argv[]) {
 ||||
 ||||
 |main|7|a|
->	int res = 0;
+> disassembly code
+```dockerfile
+int res = 0;
 00007FF7894822EF  mov         dword ptr [res],0  
 	res = Add(3, 4);
 00007FF7894822F6  mov         edx,4  
 00007FF7894822FB  mov         ecx,3  
 00007FF789482300  call        Add (07FF7894813E3h)
+```
 - Add(): 64bit프로세서에서는 register를 거쳐서 들어옴
 
 |fnc|data|identifier|
@@ -103,11 +106,13 @@ int main(int argc, char* argv[]) {
 |Add|10|b|
 |main|7|a|
 >disassembly code
-	int c = 0;
+```dockerfile
+int c = 0;
 00007FF7894817F2  mov         dword ptr [c],0  
-	c = a + b;
+c = a + b;
 00007FF7894817F9  mov         eax,dword ptr [b]  
 00007FF7894817FF  mov         ecx,dword ptr [a]  
+```
 
 - 연산 : 중간연산 결과는 레지스터에서 관리
 
@@ -122,11 +127,13 @@ int main(int argc, char* argv[]) {
 	- 직접 지정해서 사용하는 것이 아니므로 가능 
 
 >disassembly code
+```dockerfile
 00007FF789481805  add         ecx,eax  
 00007FF789481807  mov         eax,ecx  
 00007FF789481809  mov         dword ptr [c],eax  
 	return c;
 00007FF78948180C  mov         eax,dword ptr [c]  
+```
 
 - Add(): 64bit프로세서에서는 register를 거쳐서 나감
 
@@ -136,16 +143,20 @@ int main(int argc, char* argv[]) {
 |main|7|a|
 
 >disassembly code
+```dockerfile
 	printf("%d\n", res);
 00007FF789482308  mov         edx,dword ptr [res]  
 00007FF78948230B  lea         rcx,[string "%d\n" (07FF78948AC10h)]  
 00007FF789482312  call        printf (07FF78948119Fh)  
+```
 
 - main() 종료와 함께 해당 스레드 종료
 >disassembly code: 
+```dockerfile
 	return 0;
 00007FF789482317  xor         eax,eax  
 00007FF789482319  jmp         main+62h (07FF789482322h) 
+```
 
 ### 2. Call by reference
 - 포인터를 사용해 연결: 
@@ -306,8 +317,10 @@ int main(int argc, char* argv[]) {
 }
 ```
 >console)
+```dockerfile
 TestFunc: 10
 after TestFunc2: 5
+```
 
 - return이 NULL이고 지역변수와 관계가 없음에도 이전의 사용했던 값이 쓰레기로 남아있어 이후에도 영향을 줌
 	- 컴파일, 링크, 런 타입에서 예외가 발생하지 않음
@@ -574,7 +587,9 @@ int main(int argc, char* argv[]) {
 }
 ```
 >console)
+```dockerfile
 TestData
+```
 - 호출 스택, 메모리, 병렬 메모리 확인 등
 ![재귀호출](img/recursiveCall.png)
 - 재귀호출하고 출력하면 문자열이 반대로 출력됨
@@ -586,7 +601,9 @@ void putData(char* pszParam) {
 }
 ```
 >console)
+```dockerfile
 ataDtseT
+```
 
 
 # V. 표준함수 잘쓰기

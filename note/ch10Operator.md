@@ -274,11 +274,13 @@ printf("++x: %d, res: %d\n", x, nResult);
 nResult = x--;
 printf("x--: %d, res: %d\n", x, nResult);
 ```
->console
+>console)
+```dockerfile
 ++x: 1
 x++: 2
 ++x: 3, res: 3
 x--: 2, res: 3
+```
 - 이런 문제가 시험에 나오기도 하지만... 
 ```c
 int a = 5, b = 10, data = 0;
@@ -468,13 +470,15 @@ A: 1, char: 1
 
 	printf("y <= x + 5 : %d\n", y <= x + 5);
 ```
->console
+>console)
+```dockerfile
 x == y : 0
 x != y : 1
 x > 5  : 0
 y < 5  : 0
 y >= 10  : 1
 y <= x + 5 : 1
+```
 - 각 변 연산 > 비교
 ```c
 printf("299.99999F: %d\n", 300 == 299.99999F);
@@ -482,11 +486,13 @@ printf("299.99999: %d\n", 300 == 299.99999);
 printf("299.9999F: %d\n", 300 == 299.9999F);
 printf("300.00001F: %d\n", 300 == 300.00001F);
 ```
->console
+>console)
+```dockerfile
 299.99999F: 1
 299.99999: 0
 299.9999F: 0
 300.00001F: 1
+```
 
 # X. 논리 연산자
 ## A. 논리연산자 기본

@@ -75,9 +75,11 @@
 	printf("%d\n", nData); // 변수
 	printf("%p\n", &nData); // 메모리 pointer
 ```
->console
+>console)
+```dockerfile
 10
 0078F8EC
+```
 - 디버그 모드로 체크
 	- F10으로 진행하다가 F9로 중단점을 지정하고 alt+8로 어셈블러를 체크
 ![어셈블러 체크](img/assembler.png)
@@ -124,10 +126,12 @@ printf("aList[0] : %d\n",aList[0]);
 printf("aList[0] : %d\n", aList[0]);// 같은 주소를 사용
 printf("pnData[0] : %d\n", pnData[0]);
 ```
->console
+>console)
+```dockerfile
 aList[0] : 0
 aList[0] : 20
 pnData[0] : 20
+```
 
 - 포인터 변수나 배열 이름에 대해 +, - 연산을 할 수 있음(산술연산 아님)
 - 산술 연산이 아닌 상대 위치(배열의 인덱스)를 계산하기 위한 연산이며 배열 요소의 개수
@@ -155,9 +159,11 @@ printf("&pszData: %p, &szBuffer: %p\n",
 printf("Length: %d\n", pszData - szBuffer); // 빼기 연산(산술아님)
 // > 문자열의 길이 계산 로직
 ```
->console
+>console)
+```dockerfile
 &pszData: 003AF8CD, &szBuffer: 003AF8C8
 Length: 5
+```
 
 ![메모리 변경](img/memory_pointer.png)
 - 아래는 char szBuffer[]의 첫 요소(idx 0)에 저장된 데이터를 보관
@@ -344,10 +350,12 @@ puts(pszData);
 	printf("%d\n", memcmp("teststring", pszData, 10));
 	printf("%d\n", memcmp("DataString", pszData, 10));
 ```
->console
+>console)
+```dockerfile
 0
 1
 -1
+```
 
 ## D. 실습 문제
 ```dockerfile
@@ -413,7 +421,8 @@ int main(void) {
 	```c
 		printf("szBuffer + 4(pointer): %p\n", szBuffer + 4);
 	```
->console
+>console)
+```dockerfile
 szBuffer[0]: Y
 *szBuffer: Y
 *(szBuffer + 0): Y
@@ -424,6 +433,7 @@ szBuffer[5]: r
 &*(szBuffer + 4): are a girl.
 szBuffer + 4(str): are a girl.
 szBuffer + 4(pointer): 00000020783BF80C
+```
 
 # VII. 문자열 복사, 비교, 검색(동적할당)
 - 문자열이란 문자의 배열이다
@@ -455,11 +465,13 @@ szBuffer + 4(pointer): 00000020783BF80C
 	printf("%d\n", strcmp("TestString", pszData));
 	printf("%d\n", strcmp("Test", "TestString"));
 ```
->console
+>console)
+```dockerfile
 0
 0
 0
 -1
+```
 - return 0 : 같다
 ```c
 if(strcmp("Test", "TestString") == 0){
@@ -484,13 +496,15 @@ if(strcmp("Test", "TestString") == 0){
 	printf("index(am): %d\n", strstr(strBuffer, "am") - strBuffer);
 	printf("index(boy): %d\n", strstr(strBuffer, "boy") - strBuffer);
 ```
->console
+>console)
+```dockerfile
 004EFA5C
 am: 004EFA5E
 boy: 004EFA63
 zzz: 00000000
 index(am): 2
 index(boy): 7
+```
 # IX. 동적 할당된 메모리 구조와 realloc()
 - 메모리를 관리하는 주체는 OS
 	- 관리 단위(Allocation): 64KB
@@ -536,9 +550,11 @@ index(boy): 7
 
 	free(pszNewBuffer);
 ```
->console
+>console)
+```dockerfile
 [01659FB0] 12 TestString
 [01659FB0] 32 TestStringData
+```
 
 - 게임 서버처럼 OS 관리를 직접 구현하는 경우가 아닌이상 realloc을 쓰는 경우가 거의 없다
 
@@ -562,11 +578,13 @@ index(boy): 7
 	printf("**: %c[%p]\n", **ppData, &ppData);
 	printf("***: %c[%p]\n", ***pppData, &pppData);
 ```
->console
+>console)
+```dockerfile
 origin: A[0055FC6B]
 *: A[0055FC5C]
-**: A[0055FC50]
-***: A[0055FC44]
+*\*: A[0055FC50]
+*\*\*: A[0055FC44]
+```
 
 - 2중 포인터도 쓴 적이 옛날이고 3중은 거의..
 - 알면 좋지만 싱글 포인터에 대한 이해가 제대로 안됐을때는 굳이 볼필요 없음
@@ -593,7 +611,8 @@ origin: A[0055FC6B]
 	printf("%c\n", astrList[1][3]);
 	printf("%c\n", astrList[2][3]);
 ```
->console
+>console)
+```dockerfile
 astrList[i]
 Hello
 World
@@ -606,6 +625,7 @@ astrList[i][j]
 l
 l
 i
+```
 # XI. 다차원 배열에 대한 포인터
 - 2차원까지만 이해... 
 - 2차원 배열은 1차원 배열을 요소로 갖는 1차원 배열로 이해
@@ -621,17 +641,21 @@ i
 	puts(pStrList[0]);//배열을 포인터로 풀어서 사용한다
 	puts(pStrList[1]);
 ```
->console
+>console)
+```dockerfile
 Hello
 World
+```
 - 이동의 단위가 달라짐에 주의
 ```c
 	puts(pStrList[0] + 1);
 	puts(pStrList + 1);
 ```
->console
+>console)
+```dockerfile
 ello
 World
+```
 # XII. 정적 메모리와 기억부류 지정자 
 
 ## A. 기억부류(메모리) 지정자(Storage-class specifier)
@@ -700,11 +724,13 @@ int main(void) {
 	return 0;
 }
 ```
->console
+>console)
+```dockerfile
         local: 11/ static local:  11
         local: 11/ static local:  12
         local: 11/ static local:  13
         local: 11/ static local:  14
+```
 - 정적 메모리는 실행코드와 비슷한 위치에 있다
 	- static variable의 메모리 주소와 어셈블리의 실행코드의 주소가 유사함
 	- 정적 변수를 쓰면 동시성 이슈로 원하지 않는 데이터 변질이 생길 수 있음을 기억
