@@ -9,7 +9,7 @@
 ![메모리 구조 사진](img/memory_structure.png)
 
 |분류|명칭|설명|
-|---|
+|---|---|---|
 |CPU|Register||
 |CPU|L1, L2, L3 Cache memory||
 |Internal (computer)|RAM|주로 다루는 영역|
@@ -25,7 +25,7 @@
 - Virtual = Logical > 소프트웨어다
 
 |종류|특징|
-|---|
+|---|---|
 |Stack|자동변수(scope), 보통 1MB|
 |Heap|동적 할당 메모리(variable)|
 |static(PE)|text(code) section: 실행 코드 기계어<br/>data section: <br/> &nbsp;- Read only(문자열 상수)<br/> &nbsp;- Read/Write(정적 메모리)|
@@ -58,7 +58,7 @@
 - 함수 소속
 
 |#include|함수|
-|---|
+|---|---|
 |<stdlib.h> | malloc()<br/>_countof()|
 |<string.h> | memset()<br/>memcpy()<br/>memcmp()|
 ## E. 메모리 디버깅!!
@@ -471,8 +471,10 @@ if(strcmp("Test", "TestString") == 0){
 ```c
 	char strBuffer[32] = { "I am a boy" };
 ```
+
 |I| |a|m| |a| |b|o|y|\0|
-|---|
+|---|---|---|---|---|---|---|---|---|---|---|
+
 ```c
 	printf("%p\n",strBuffer);//I가 보관된 메모리 주소
 	printf("am: %p\n", strstr(strBuffer, "am"));//검색어 제일 앞인 a가 보관된 메모리 주소

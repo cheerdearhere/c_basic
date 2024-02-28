@@ -27,14 +27,17 @@ void TestFunc(int a) {
 - e위치x: 
 	- e: register의 
 	- 위치: 아래에서 c, d 
-	- x: 16진수 표기
-> 함수 외부(호출자)
-00007FF68C532268  mov         edx,0Ah (rdx에 10(16진수로 표기)) 
-00007FF68C53226D  mov         ecx,5	  (rcx에 5)
-00007FF68C532272  call        TestFunc (07FF68C5313DEh)  
-
-> 함수 내부(피호출자)
-00007FF68C531D79  mov         dword ptr [a],0Ah  (함수 내부에서 처리될때는 지역변수. 포인터 표시)
+	- x: 16진수 표기 
+  - 함수 외부(호출자)
+	```dockerfile
+		00007FF68C532268  mov         edx,0Ah (rdx에 10(16진수로 표기)) 
+		00007FF68C53226D  mov         ecx,5	  (rcx에 5)
+		00007FF68C532272  call        TestFunc (07FF68C5313DEh)  
+	```
+  - 함수 내부(피호출자)
+	```dockerfile
+	00007FF68C531D79  mov         dword ptr [a],0Ah  (함수 내부에서 처리될때는 지역변수. 포인터 표시)
+	```
 
 - 매개변수는 오른쪽 부터 입력됨: 기억해두면 유용
 
@@ -65,13 +68,14 @@ int main(int argc, char* argv[]) {
 ```
 - main() 시작
 
-|fnc|data|identifier|
-|---|
-||||
-||||
-||||
-|main|7|a|
->disassembly code: 
+|fnc|data| identifier |
+|---|---|-----------|
+|||           |
+|||           |
+|||           |
+|main|7| a         |
+
+- disassembly code: 
 00007FF7894822E8  mov         dword ptr [a],7  
 
 	dword ptr : cpu에서 값을 가져올때 포인터로 접근
@@ -79,7 +83,7 @@ int main(int argc, char* argv[]) {
 - 매개변수 전달(64bit이므로 register 사용)
 
 |fnc|data|identifier|
-|---|
+|---|---|---|
 ||||
 ||||
 ||||
@@ -93,7 +97,7 @@ int main(int argc, char* argv[]) {
 - Add(): 64bit프로세서에서는 register를 거쳐서 들어옴
 
 |fnc|data|identifier|
-|---|
+|---|---|---|
 |Add|0|c|
 |Add|5|a|
 |Add|10|b|
@@ -108,7 +112,7 @@ int main(int argc, char* argv[]) {
 - 연산 : 중간연산 결과는 레지스터에서 관리
 
 |fnc|data|identifier|
-|---|
+|---|---|---|
 |Add|15|c|
 |Add|5|a|
 |Add|10|b|
@@ -127,7 +131,7 @@ int main(int argc, char* argv[]) {
 - Add(): 64bit프로세서에서는 register를 거쳐서 나감
 
 |fnc|data|identifier|
-|---|
+|---|---|---|
 |main|15|res|
 |main|7|a|
 
@@ -252,7 +256,7 @@ int main(int argc, char* argv[]) {
 	- main()
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	||||
 	||||
 	||||
@@ -261,7 +265,7 @@ int main(int argc, char* argv[]) {
 	- TestFunc()
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	||||
 	||||
 	|TestFunc|10|nData|
@@ -270,7 +274,7 @@ int main(int argc, char* argv[]) {
 	- return 이후
 	
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	||||
 	||||
 	|(제거)|(제거)|(제거)|
@@ -446,21 +450,21 @@ int main(int argc, char* argv[]) {
 	- TestFunc()
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	||||
 	||||
 	||||
 	|main|||
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	||||
 	||||
 	|GetFactorial|5|nParam|
 	|main|||
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	||||
 	|GetFactorial|0|nResult|
 	|GetFactorial|5|nParam|
@@ -468,7 +472,7 @@ int main(int argc, char* argv[]) {
 	- 재귀 1회
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	|GetFactorial|0|nResult|
 	|GetFactorial|4|nParam|
 	|GetFactorial|0|nResult|
@@ -478,7 +482,7 @@ int main(int argc, char* argv[]) {
 	- 재귀 2회
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	|GetFactorial|0|nResult|
 	|GetFactorial|3|nParam|
 	|GetFactorial|0|nResult|
@@ -490,7 +494,7 @@ int main(int argc, char* argv[]) {
 	- ... 반복
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	|GetFactorial|1|nParam|
 	|GetFactorial|0|nResult|
 	|GetFactorial|2|nParam|
@@ -505,7 +509,7 @@ int main(int argc, char* argv[]) {
 	- nParam = 1이므로 return 1
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	|GetFactorial|1|nParam|
 	|GetFactorial|1|nResult|
 	|GetFactorial|2|nParam|
@@ -518,7 +522,7 @@ int main(int argc, char* argv[]) {
 	|main|||
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	|GetFactorial|1*2|nResult|
 	|GetFactorial|3|nParam|
 	|GetFactorial|0|nResult|
@@ -528,7 +532,7 @@ int main(int argc, char* argv[]) {
 	|main|||
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	|GetFactorial|3|nParam|
 	|GetFactorial|1\*2*3|nResult|
 	|GetFactorial|4|nParam|
@@ -539,7 +543,7 @@ int main(int argc, char* argv[]) {
 	- ... 반복
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	|GetFactorial|1\*2\*3\*4\*5|nResult|
 	|GetFactorial|5|nParam|
 	|main|||
@@ -547,7 +551,7 @@ int main(int argc, char* argv[]) {
 	- main
 
 	|fnc|data|identifier|
-	|---|
+	|---|---|---|
 	|main|1\*2\*3\*4\*5||
 
 - 물론 고작 팩토리얼에 이정도 메모리 소모를 감수하지는 않는다. 
