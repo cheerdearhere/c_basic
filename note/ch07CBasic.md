@@ -126,3 +126,25 @@ int main(void){//여러 구문을 묶음 => 함수
 - 변수는 하나만 쓰도록하면 정리하기 좋음
 - 굳이 변수가 필요한가 체크
 - 단위가 바뀌는 경계 값들이 제대로 처리가 되는지 확인
+
+# VII. 기타
+- 모르는 타입이 나타나면
+	- 해당 타입에 커서를 올리고(또는 블럭으로 선택)
+	- F12
+```c
+size_t length = 0; 
+```
+- 해당 세팅이 있는 곳으로 이동해서 확인할 수 있음
+```c
+// Definitions of common types
+#ifdef _WIN64
+    typedef unsigned __int64 size_t;
+    typedef __int64          ptrdiff_t;
+    typedef __int64          intptr_t;
+#else
+    typedef unsigned int     size_t;
+    typedef int              ptrdiff_t;
+    typedef int              intptr_t;
+#endif
+
+```
