@@ -671,10 +671,163 @@ ataDtseT
 - 가변길이 배열은 늘 고민의 대상
 	- 특히 자주쓰이는 가변길이 배열 문자열
 
+## C. 가변길이 입력에 대한 Stack frame 손상
+```c
+void GetString(void) {
+	char szBuffer[8] = { 0 };
+	int nData = 0x11223344;
+
+	gets(szBuffer);
+	printf("%s, %08X\n", szBuffer, nData);
+	return;
+}
+```
+>버퍼 범위 이내 console)
+```dockerfile
+TEST
+TEST, 11223344
+```
+>버퍼를 넘어선 경우 손상 console)
+```dockerfile
+TEST TEST 
+TEST TEST, 11223300
+```
+- 64비트에서는 보안처리가되어 막힘
+```
+Run-Time Check Failure #2 - Stack around the variable 'szBuffer' was corrupted.
+'[0x6F34] ch15AdvancedFunction.exe' 프로그램이 종료되었습니다(코드: 0 (0x0)).
+```
+- 테스트를 위한 설정: 온갖 보안이슈에 신경쓰지 않겠다
+	- 기본 런타임 검사 : 기본값
+	- 보안 검사: 보안검사 안함
+- 설명: 
+	- 64비트 프로세서 체제가 들어오면서 많은 변화가 있으나 지역변수는 여전히 stack area를 사용한다
+	- stack frame이 쌓일수록 0번지에 가까워진다 
+		- 먼저 쌓인것이 나중에 나가기에 후순열이다
+	- 나중에 쌓인 프레임이 범위를 넘어서면 다음 프레임을 오염시킨다
+		- szBuffer[8]에 "TESTTEST"를 넣으면 종료 문자인 \0가 추가됨. 
+		- szBuffer[8]를 넘어 nData의 영역에 \0이 입력
+	- cpu는 little endian방식이므로 역방향으로 메모리를 채움
+		- 44 33 22 11에서 끝 부분인 44에 \0가 입력됨
+	- 다시 출력할때는 44부분이 null(00)로 출력
+- 입력 길이를 측정하지 않는 gets()대신 gets_s()를 사용한 이유
+
+## D. 숫자
+
+|function||
+|---|---|
+|atoi|ASCII to int|
+|atol|ASCII to long|
+|atof|ASCII to float|
+
+- 주의사항: 범위
+```c
+printf("1234567890: %d\n", atoi("2147483647"));
+printf("1234567890: %d\n", atoi("2147483648"));
+printf("1.7e+308: %e\n", atof("1.7e+308"));
+printf("1.7e+309: %e\n", atof("1.7e+309"));
+```
+- 범위 최대값을 넘어서는 값은 다 무시되거나 무한대(inf)로 출력
+>console)
+```
+1234567890: 2147483647
+1234567890: 2147483647
+1.7e+308: 1.700000e+308
+1.7e+309: inf
+```
+## E. 시간
+- 구조체는 배우기 전 이므로 그냥 소개정도로만 이해
+
+|function||
+|---|---|
+|time()||
+|localtime_s()||
+|ctime_s()||
+
+```c
+	struct tm curtime = { 0 };
+	time_t t = 0;
+	
+	t = time(NULL);
+		//64bit unsigned int: 1970.1.1(세계협정시/ UTC, GMT) 부터의 seconds
+	localtime_s(&curtime,&t);
+
+	printf("%lld\n", t);// 초단위 출력
+
+	char szBuffer[128] = { 0 };
+	//ctime_s: 문자열로 출력(기본 폼)
+	ctime_s(szBuffer, sizeof(szBuffer), &t);
+	printf("%s\n", szBuffer);
+
+	//원하는 포멧을 직접 지정
+	printf("%04d-%02d-%02d\n",
+		curtime.tm_year + 1900,
+		curtime.tm_mon + 1,
+		curtime.tm_mday);
+```
+- time_t는 32bit는 2000년 이전 사용
+	- 소프트웨어 로그의 문제가 생길 시점
+		- 1970.1.1기준 32bit integer를 벗어나는 시점: 2038.01.19 
+		- 그때까지 남아있으면 15년 후 아마 버그가 많을 예정
+	- 64비트로 변경
+
+- 필요할때 찾아쓰면 된다		
+## F. 랜덤
+- 랜덤값 추출
+	- 시드에 따라 값이 예측이 가능하므로 시드를 계속 초기화해줘야 좋음
+	- 원하는 방식으로 사용
+		- 경우의 수로 modulus operate
+
+|function||
+|---|---|
+|srand()|rand 함수의 시드값 지정|
+|rand()|시드를 기준으로 랜덤값(사실은 연산) 추출|
+
+- 특히 게임
+	- 어떤 활동에 대한 return은 랜덤
+		- 사냥 : 보상 25%
+		- 요리 : 실패 10%
+		- ...
+	- 구간에 따른 알고리즘에 따라 회사의 정책이 다를 수 있음
+		- 개발자가 직접 개입할 필요가 있을 수 있음
+
+## G. 시스템 
+- 윈도우 기준 시스템 함수
+- 리눅스는...알아서...
+
+|function||
+|---|---|
+|systemn()|시스템 커맨드|
+|exit()|cmd 종료|
+
+- 시스템 함수 실행
+	- 이벤트 루프때 썼던거...
+		- notepad.exe: 메모장 실행
+		- dir: 디렉토리 검색
+		- cls: 클리어
+		- cmd: 다른 cmd창 호출
+		- exit: cmd 종료
+```c
+	char szCommand[512] = { 0 };
+	printf("Input command: ");
+	gets_s(szCommand, sizeof(szCommand));
+
+	system(szCommand);
+	//system("notepad.exe");//메모장 실행
+```
+- 사용자 명령어에 직접 접근하는 것은 매우 중대한 보안사고가 날 수 있음
 
 
-
-
-[실습 예제](../c_basic/ch15AdvancedFunction/.c)
+- exit()는 루프와 관계없이 종료
+```c
+	char ch; 
+	printf("Do you want to EXIT? (Y/N)\n");
+	ch = _getch();
+	if (ch == 'y' || ch == 'Y') {
+		puts("EXIT");
+		exit(1);//즉시 종료
+	}
+	puts("End of main()");
+```
 
 [함수 응용 전체 코드](../c_basic/ch15ch15AdvancedFunction)
