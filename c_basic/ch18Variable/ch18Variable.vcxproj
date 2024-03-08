@@ -128,7 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="basic_form.c" />
-    <ClCompile Include="ch18Variable.c" />
+    <ClCompile Include="ch18Variable_basic.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="basicForm.h" />
