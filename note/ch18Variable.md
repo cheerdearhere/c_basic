@@ -224,6 +224,4 @@ int main(int argc, char* argv[]) {
 - 같은 .c파일에서는 내부, 다른 파일이면 외부
 
 
-[변수와 상수 고급이론 실습 코드](../c_basic/ch18Variable/.c)
-
 [변수와 상수 고급이론 전체 코드](../c_basic/ch18Variable)
