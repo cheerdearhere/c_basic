@@ -578,12 +578,4 @@ current File pointer: 10
 - 이후로는 약간 고급이론. 알아두면 좋은 것들
 
 
-
-
-
-
-
-
-[파일 시스템 실습 코드](../c_basic/ch17FileSystem/.c)
-
 [파일 시스템 전체 코드](../c_basic/ch17FileSystem)
