@@ -168,6 +168,5 @@ typedef char TCHAR;
 - 물론 빌드분야를 다루는 것은 신입이 쓰지는 않으니 이런게 있다 정도만
 - 더 공부하고 싶다면 #pragma
 
-[전처리기 실습 코드](../c_basic/ch19Preprocessor/.c)
 
 [전처리기 전체 코드](../c_basic/ch19Preprocessor)
